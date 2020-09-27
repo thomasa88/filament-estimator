@@ -1,21 +1,44 @@
-// Radius of the clamp inside
+/*
+
+
+                _________________
+               /                 \
+              /                   \
+             /                     \
+            |                       |
+            |           O           |
+            |                       |
+             \                     /
+              \                   /
+               \_________________/
+
+
+*/
+
+
+// Inner radius of the clamp
 clamp_radius = 11.7 - 0.2;
-clamp_opening = 15;
+// Width of the clamp opening
+clamp_opening = 18;
 
 // Spool distances
 // Radius of spool center hole
 hole_radius = 26.5;
-// Inner radius of filament
-inner_radius = 53;
-// Maximum radius of filament/spool (not used in calculation)
-outer_radius = 100;
+// Filament radii
+min_radius = 53;
+// Full spool
+max_radius = 89;
+max_weight = 750; // g
+
+
+scale_max_weight = 850;
+
+// Not used in current calculations. Just for rendering.
 spool_inner_width = 45.5;
 
-spool_mass = 217.5; // g
-max_filament_mass = 750; // g
-// Use max filament radius instead - better than density!!!!?
-filament_density = 1.24 / 1000; // g/mm^3
-//1.24; // g/cm^3 = kg/dm^3
+//spool_mass = 217.5; // g
+//max_filament_mass = 750; // g
+//filament_density = 1.24 / 1000; // g/mm^3
 
 $fn = 50;
 
@@ -31,11 +54,17 @@ module filament() {
     color("blue", alpha=0.2)
     translate([0, 0, -spool_inner_width - 0.1])
     difference() {
-        cylinder(h=spool_inner_width, r=outer_radius);
+        cylinder(h=spool_inner_width, r=max_radius);
         translate([0, 0, -spool_inner_width/2])
-        cylinder(h=2*spool_inner_width, r=hole_radius);
+        cylinder(h=2*spool_inner_width, r=min_radius);
     }
 }
+
+function mass_to_radius(m) =
+    // Find the area of filament for radius x, then divide it
+    // by the area of max filament. Use this ratio to scale
+    // the weight m. Then solve for the radius x.
+    sqrt((m*(pow(max_radius,2)-pow(min_radius, 2))) / max_weight + pow(min_radius, 2));
 
 // Using filament center as origin
 module measure() {
@@ -46,15 +75,16 @@ module measure() {
     line_long_length = 3;
     line_depth = 0.4;
     font_height_mm = 3;
+    scale_max_radius = mass_to_radius(scale_max_weight + 50);
     
     difference() {
         // "Stick"
         translate([hole_radius, -w/2, 0])
-        cube([outer_radius - inner_radius, w, d]);
+        cube([scale_max_radius - hole_radius, w, d]);
         
         // Measure markers
-        for (m = [50:50:max_filament_mass]) {
-            x = sqrt(m/(PI*filament_density*spool_inner_width)+pow(inner_radius, 2)) - hole_radius;
+        #for (m = [0:50:scale_max_weight]) {
+            x = mass_to_radius(m);
             has_text = (m % 100 == 0);
             line_length = has_text ? line_long_length : line_short_length;
             echo(m=m, x=x);
