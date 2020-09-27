@@ -18,8 +18,8 @@
 
 // Inner radius of the clamp
 clamp_radius = 11.7 - 0.2;
-// Width of the clamp opening
-clamp_opening = 18;
+// Width of the clamp opening - approximate
+clamp_opening = 30;
 
 // Spool distances
 // Radius of spool center hole
@@ -44,9 +44,9 @@ $fn = 50;
 
 FONT_MM = 0.85;
 // Overlap for cuts, so OpenSCAD does not intersect surfaces
-intersect_margin = 0.001;
+intersect_margin = 0.01;
 
-filament();
+*filament();
 measure();
 clamp();
 
@@ -121,7 +121,10 @@ module clamp() {
         translate([0, 0, -d/2])
         cylinder(h=2*d, r=clamp_radius);
         // Opening
-        translate([-clamp_radius, 0, 0])
-        cube([clamp_radius, clamp_opening, 4*d], center=true);
+        translate([0, 0, -intersect_margin])
+        linear_extrude(2*d)
+        // Make walls *2 to cut through the ring completely
+        polygon([[0, 0], [-clamp_radius*2, clamp_opening],
+                 [-clamp_radius*2, -clamp_opening]]);
     }
 }
