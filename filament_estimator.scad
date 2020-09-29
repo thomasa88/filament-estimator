@@ -9,6 +9,9 @@ License: CC BY-SA 4.0
 */
 
 /* [Fastening] */
+// Should the measure have a spool holder clamp?
+have_clamp = true;
+
 // Inner radius of the clamp. Make it approx 0.2 mm smaller than the spool holder rod.
 clamp_radius = 11.5; // 11.7 - 0.2
 
@@ -23,15 +26,21 @@ hole_radius = 26.5;
 empty_radius = 53;
 // Radius from the spool center to sample point on filament
 sample_radius = 89;
-// Weight of the filament at sample point
+// Weight of the filament at sample point.
 sample_weight = 750; // g
 
 /* [Scale] */
 // Filament type label
 filament_type = "PLA";
 
-// Maximum weight to show on the scale. Determines the length.
+// Maximum weight to show on the scale. Determines the length of the scale.
 scale_max_weight = 850;
+
+// How much weight each line on the scale represents.
+scale_step = 50;
+
+// How often too label the lines, in weight.
+scale_label_step = 100;
 
 /* [Hidden] */
 
@@ -49,7 +58,9 @@ intersect_margin = 0.01;
 
 *filament();
 measure();
-clamp();
+if (have_clamp) {
+    clamp();
+}
 
 module filament() {
     color("blue", alpha=0.2)
@@ -95,9 +106,9 @@ module measure() {
                  valign="top");
             
             // Measure markers
-            for (m = [0:50:scale_max_weight]) {
+            for (m = [0:scale_step:scale_max_weight]) {
                 r = mass_to_radius(m);
-                has_text = (m % 100 == 0);
+                has_text = (m % scale_label_step == 0);
                 line_length = has_text ? line_long_length : line_short_length;
                 echo(m=m, r=r);
                 // Position vertically
