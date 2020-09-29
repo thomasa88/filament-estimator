@@ -10,7 +10,7 @@ License: CC BY-SA 4.0
 
 /* [Fastening] */
 // Should the measure have a spool holder clamp?
-have_clamp = true;
+have_clamp = 1; // [0:without clamp, 1:with clamp]
 
 // Inner radius of the clamp. Make it approx 0.2 mm smaller than the spool holder rod.
 clamp_radius = 11.5; // 11.7 - 0.2
