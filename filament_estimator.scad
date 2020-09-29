@@ -1,3 +1,13 @@
+/*
+
+Filament Estimator
+
+Copyright Thomas Axelsson 2020.
+
+License: CC BY-SA 4.0
+
+*/
+
 /* [Fastening] */
 // Inner radius of the clamp. Make it approx 0.2 mm smaller than the spool holder rod.
 clamp_radius = 11.5; // 11.7 - 0.2
